@@ -1,0 +1,213 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  AGENT
+}
+
+enum PolicyType {
+  TERM
+  WHOLE_LIFE
+  UNIVERSAL_LIFE
+  FINAL_EXPENSE
+  OTHER
+}
+
+enum PolicyStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum CallStatus {
+  QUEUED
+  INITIATED
+  RINGING
+  IN_PROGRESS
+  COMPLETED
+  BUSY
+  FAILED
+  NO_ANSWER
+  CANCELED
+}
+
+enum CallDirection {
+  INBOUND
+  OUTBOUND
+}
+
+model Agency {
+  id        String   @id @default(cuid())
+  name      String
+  plan      String   @default("free")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          User[]
+  contacts       Contact[]
+  phoneNumbers   PhoneNumber[]
+  pipelineStages PipelineStage[]
+
+  @@map("agencies")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  role         Role     @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  calls Call[]
+
+  @@index([agencyId])
+  @@map("users")
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  city      String?
+  state     String?
+  areaCode  String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agencyId    String
+  agency      Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  phoneDigits String?
+
+  // Nullable so existing rows survive the migration; app code always sets it
+  // (defaults to the agency's lowest-`order` stage) on create.
+  stageId String?
+  stage   PipelineStage? @relation(fields: [stageId], references: [id], onDelete: Restrict)
+
+  policies Policy[]
+  calls    Call[]
+
+  @@index([agencyId])
+  @@index([agencyId, state])
+  @@index([agencyId, phoneDigits])
+  @@index([stageId])
+  @@map("contacts")
+}
+
+model PipelineStage {
+  id        String   @id @default(cuid())
+  name      String
+  order     Int
+  color     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  contacts Contact[]
+
+  @@index([agencyId, order])
+  @@map("pipeline_stages")
+}
+
+model PhoneNumber {
+  id        String   @id @default(cuid())
+  number    String   @unique
+  areaCode  String
+  state     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  calls Call[]
+
+  @@index([agencyId])
+  @@index([agencyId, areaCode])
+  @@map("phone_numbers")
+}
+
+model Call {
+  id              String        @id @default(cuid())
+  twilioCallSid   String?       @unique
+  direction       CallDirection @default(OUTBOUND)
+  fromNumber      String
+  toNumber        String
+  status          CallStatus    @default(QUEUED)
+  durationSec     Int?
+  wentToVoicemail Boolean       @default(false)
+  startedAt       DateTime      @default(now())
+  endedAt         DateTime?
+
+  // Nullable: inbound calls may not match a known Contact, and may end
+  // without ever being answered by a specific agent (e.g. voicemail).
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  phoneNumberId String?
+  phoneNumber   PhoneNumber? @relation(fields: [phoneNumberId], references: [id], onDelete: SetNull)
+
+  recording Recording?
+
+  @@index([contactId])
+  @@index([userId])
+  @@index([phoneNumberId])
+  @@map("calls")
+}
+
+model Recording {
+  id                 String   @id @default(cuid())
+  twilioRecordingSid String?  @unique
+  url                String
+  durationSec        Int?
+  createdAt          DateTime @default(now())
+
+  callId String @unique
+  call   Call   @relation(fields: [callId], references: [id], onDelete: Cascade)
+
+  @@map("recordings")
+}
+
+model Policy {
+  id             String       @id @default(cuid())
+  type           PolicyType
+  insurer        String
+  policyNumber   String?
+  monthlyPremium Decimal      @db.Decimal(10, 2)
+  startDate      DateTime
+  renewalDate    DateTime
+  status         PolicyStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([status, renewalDate])
+  @@map("policies")
+}
