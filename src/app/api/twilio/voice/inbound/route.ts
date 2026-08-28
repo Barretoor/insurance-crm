@@ -1,6 +1,6 @@
 import Twilio from "twilio";
 import { prisma } from "@/lib/prisma";
-import { RECORDING_DISCLOSURE, VOICE_LANGUAGE, appUrl } from "@/lib/twilio";
+import { RECORDING_DISCLOSURE, SAY_VOICE_OPTIONS, appUrl } from "@/lib/twilio";
 import { verifyTwilioRequest } from "@/lib/twilio-verify";
 import { xmlResponse, appendVoicemail } from "@/lib/voice-twiml";
 import { normalizePhoneDigits } from "@/lib/phone";
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   if (!phoneNumber) {
     const twiml = new VoiceResponse();
     twiml.say(
-      { language: VOICE_LANGUAGE },
+      SAY_VOICE_OPTIONS,
       "Lo sentimos, este número no está disponible en este momento."
     );
     twiml.hangup();
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   });
 
   const twiml = new VoiceResponse();
-  twiml.say({ language: VOICE_LANGUAGE }, RECORDING_DISCLOSURE);
+  twiml.say(SAY_VOICE_OPTIONS, RECORDING_DISCLOSURE);
 
   if (agents.length === 0) {
     await prisma.call.update({

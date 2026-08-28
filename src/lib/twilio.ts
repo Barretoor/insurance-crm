@@ -29,6 +29,15 @@ export function appUrl(pathAndQuery: string): string {
 
 /** Recording-consent disclosure, played on both outbound and inbound calls. */
 export const RECORDING_DISCLOSURE =
-  "Esta llamada puede ser grabada con fines de calidad y capacitación.";
+  "Un momento por favor, esta llamada podría ser grabada.";
 
 export const VOICE_LANGUAGE = "es-MX" as const;
+
+/** Neural TTS voice (Amazon Polly, es-MX) used for every automated voice prompt in the system. */
+export const VOICE_NAME = "Polly.Mia-Neural" as const;
+
+/** Spread onto every <Say> call so language+voice stay consistent and change in one place. */
+export const SAY_VOICE_OPTIONS = {
+  language: VOICE_LANGUAGE,
+  voice: VOICE_NAME,
+} as const;

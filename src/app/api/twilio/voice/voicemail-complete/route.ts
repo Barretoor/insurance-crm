@@ -1,5 +1,5 @@
 import Twilio from "twilio";
-import { VOICE_LANGUAGE, appUrl } from "@/lib/twilio";
+import { SAY_VOICE_OPTIONS, appUrl } from "@/lib/twilio";
 import { verifyTwilioRequest } from "@/lib/twilio-verify";
 import { xmlResponse } from "@/lib/voice-twiml";
 
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
   const twiml = new VoiceResponse();
   twiml.say(
-    { language: VOICE_LANGUAGE },
+    SAY_VOICE_OPTIONS,
     "Gracias, hemos recibido tu mensaje. Un agente te contactará pronto."
   );
   twiml.hangup();

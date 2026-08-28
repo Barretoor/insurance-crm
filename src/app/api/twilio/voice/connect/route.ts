@@ -1,6 +1,6 @@
 import Twilio from "twilio";
 import { prisma } from "@/lib/prisma";
-import { RECORDING_DISCLOSURE, VOICE_LANGUAGE, appUrl } from "@/lib/twilio";
+import { RECORDING_DISCLOSURE, SAY_VOICE_OPTIONS, appUrl } from "@/lib/twilio";
 import { verifyTwilioRequest } from "@/lib/twilio-verify";
 
 const { VoiceResponse } = Twilio.twiml;
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   const twiml = new VoiceResponse();
-  twiml.say({ language: VOICE_LANGUAGE }, RECORDING_DISCLOSURE);
+  twiml.say(SAY_VOICE_OPTIONS, RECORDING_DISCLOSURE);
 
   const dial = twiml.dial({
     callerId: call.fromNumber,
