@@ -65,7 +65,7 @@ export default async function ContactDetailPage({
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-medium text-gray-900 tracking-tight">
             {contact.name}
@@ -126,7 +126,7 @@ export default async function ContactDetailPage({
             }}
           />
         ) : (
-          <div className="overflow-hidden rounded-md border border-gray-200">
+          <div className="overflow-x-auto rounded-md border border-gray-200">
             <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
                 <tr>

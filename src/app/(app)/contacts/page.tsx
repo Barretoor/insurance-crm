@@ -131,7 +131,7 @@ export default async function ContactsPage({
           />
         )
       ) : (
-        <div className="overflow-hidden rounded-md border border-gray-200">
+        <div className="overflow-x-auto rounded-md border border-gray-200">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
               <tr>

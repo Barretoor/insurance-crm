@@ -65,7 +65,7 @@ export function CalendarGrid({
                 key={key}
                 type="button"
                 onClick={() => setSelectedKey(key)}
-                className={`min-h-[84px] border-b border-r border-gray-100 p-1.5 text-left align-top transition-colors last:border-r-0 ${
+                className={`min-h-[56px] border-b border-r border-gray-100 p-1 text-left align-top transition-colors last:border-r-0 sm:min-h-[84px] sm:p-1.5 ${
                   inMonth ? "bg-surface" : "bg-gray-50/60"
                 } ${isSelected ? "ring-2 ring-inset ring-accent-500" : "hover:bg-gray-50"}`}
               >
