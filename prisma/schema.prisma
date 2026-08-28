@@ -46,6 +46,25 @@ enum CallDirection {
   OUTBOUND
 }
 
+enum TaskRecurrence {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
 model Agency {
   id        String   @id @default(cuid())
   name      String
@@ -57,6 +76,8 @@ model Agency {
   contacts       Contact[]
   phoneNumbers   PhoneNumber[]
   pipelineStages PipelineStage[]
+  tasks          Task[]
+  appointments   Appointment[]
 
   @@map("agencies")
 }
@@ -67,6 +88,8 @@ model User {
   email        String   @unique
   passwordHash String
   phone        String?
+  avatarUrl    String?
+  theme        Theme    @default(LIGHT)
   role         Role     @default(ADMIN)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -102,8 +125,10 @@ model Contact {
   stageId String?
   stage   PipelineStage? @relation(fields: [stageId], references: [id], onDelete: Restrict)
 
-  policies Policy[]
-  calls    Call[]
+  policies     Policy[]
+  calls        Call[]
+  tasks        Task[]
+  appointments Appointment[]
 
   @@index([agencyId])
   @@index([agencyId, state])
@@ -210,4 +235,47 @@ model Policy {
   @@index([contactId])
   @@index([status, renewalDate])
   @@map("policies")
+}
+
+model Task {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  dueDate     DateTime
+  recurrence  TaskRecurrence @default(NONE)
+  completed   Boolean        @default(false)
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([agencyId, dueDate])
+  @@index([contactId])
+  @@map("tasks")
+}
+
+model Appointment {
+  id          String            @id @default(cuid())
+  title       String
+  startsAt    DateTime
+  durationMin Int               @default(30)
+  notes       String?
+  status      AppointmentStatus @default(SCHEDULED)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([agencyId, startsAt])
+  @@index([contactId])
+  @@map("appointments")
 }
