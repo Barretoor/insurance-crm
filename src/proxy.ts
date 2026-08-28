@@ -21,5 +21,10 @@ export const config = {
   // or Twilio signature verification) and must return real HTTP status codes
   // instead of an HTML redirect to /login — Twilio's webhooks in particular
   // never carry a session cookie and would otherwise never reach our handlers.
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  // PWA assets (manifest, service worker, icons) are excluded too: browsers
+  // fetch these without a session - e.g. from the login screen - and must
+  // get the real file, not an HTML redirect.
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|icons/).*)",
+  ],
 };
