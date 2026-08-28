@@ -53,16 +53,17 @@ export async function createPhoneNumber(
 
   revalidatePath("/numbers");
 
-  const warning = await configureInboundWebhook(number);
+  const warning = await configureInboundWebhooks(number);
   return warning ? { warning } : {};
 }
 
 /**
- * Best-effort: points this Twilio number's "A call comes in" webhook at our
- * inbound handler, so the admin doesn't have to configure it by hand in the
- * Twilio Console. Returns a warning message if it couldn't be done.
+ * Best-effort: points this Twilio number's "A call comes in" and "A message
+ * comes in" webhooks at our inbound handlers, so the admin doesn't have to
+ * configure them by hand in the Twilio Console. Returns a warning message if
+ * it couldn't be done.
  */
-async function configureInboundWebhook(number: string): Promise<string | null> {
+async function configureInboundWebhooks(number: string): Promise<string | null> {
   try {
     const client = twilioClient();
     const [incomingNumber] = await client.incomingPhoneNumbers.list({
@@ -71,19 +72,36 @@ async function configureInboundWebhook(number: string): Promise<string | null> {
     });
 
     if (!incomingNumber) {
-      return "El número se guardó, pero no se encontró en tu cuenta de Twilio: configura manualmente su webhook de voz en la consola de Twilio para poder recibir llamadas.";
+      return "El número se guardó, pero no se encontró en tu cuenta de Twilio: configura manualmente sus webhooks de voz y SMS en la consola de Twilio para poder recibir llamadas y mensajes.";
     }
 
     await client.incomingPhoneNumbers(incomingNumber.sid).update({
       voiceUrl: appUrl("/api/twilio/voice/inbound"),
       voiceMethod: "POST",
+      smsUrl: appUrl("/api/twilio/sms/inbound"),
+      smsMethod: "POST",
     });
 
     return null;
   } catch (error) {
-    console.error("No se pudo configurar el webhook de voz entrante:", error);
-    return "El número se guardó, pero no se pudo configurar automáticamente su webhook de voz. Configúralo manualmente en la consola de Twilio para poder recibir llamadas.";
+    console.error("No se pudieron configurar los webhooks entrantes:", error);
+    return "El número se guardó, pero no se pudieron configurar automáticamente sus webhooks de voz y SMS. Configúralos manualmente en la consola de Twilio.";
   }
+}
+
+/** Re-runs the webhook configuration for a number already in the pool (e.g. one added before SMS support existed). */
+export async function reconfigureWebhooks(formData: FormData) {
+  const session = await requireSession();
+  if (session.user.role !== "ADMIN") return;
+
+  const id = String(formData.get("id") ?? "");
+  const phoneNumber = await prisma.phoneNumber.findFirst({
+    where: { id, agencyId: session.user.agencyId },
+  });
+  if (!phoneNumber) return;
+
+  await configureInboundWebhooks(phoneNumber.number);
+  revalidatePath("/numbers");
 }
 
 export async function togglePhoneNumberActive(formData: FormData) {

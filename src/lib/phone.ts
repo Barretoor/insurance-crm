@@ -24,3 +24,13 @@ export function normalizePhoneDigits(phone: string | null | undefined): string |
 
   return null;
 }
+
+/**
+ * Converts a freeform US/Canada Contact.phone value to E.164 (+1XXXXXXXXXX).
+ * Twilio's Messages API rejects `to` numbers that aren't E.164, unlike the
+ * Dial verb used for calls which tolerates looser formats.
+ */
+export function toE164(phone: string | null | undefined): string | null {
+  const digits = normalizePhoneDigits(phone);
+  return digits ? `+1${digits}` : null;
+}

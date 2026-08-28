@@ -4,7 +4,7 @@ import { requireSession } from "@/lib/session";
 import { stateLabel } from "@/lib/us-states";
 import { appUrl } from "@/lib/twilio";
 import { PhoneNumberForm } from "@/components/phone-number-form";
-import { togglePhoneNumberActive } from "./actions";
+import { togglePhoneNumberActive, reconfigureWebhooks } from "./actions";
 
 function inboundWebhookUrl(): string | null {
   try {
@@ -58,12 +58,12 @@ export default async function NumbersPage() {
           aquí.
         </p>
         <p className="mt-1 text-sm text-gray-500">
-          Al agregar un número, configuramos automáticamente su webhook de voz
-          entrante en Twilio.
+          Al agregar un número, configuramos automáticamente sus webhooks de
+          voz y SMS entrantes en Twilio.
           {inboundWebhookUrl() && (
             <>
               {" "}
-              Si falla, configúralo tú manualmente ahí:{" "}
+              Si falla, configúralos tú manualmente ahí:{" "}
               <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">
                 {inboundWebhookUrl()}
               </code>
@@ -128,15 +128,26 @@ export default async function NumbersPage() {
                     {callCountByNumber.get(phoneNumber.id) ?? 0}
                   </td>
                   <td className="px-4 py-2 text-right">
-                    <form action={togglePhoneNumberActive}>
-                      <input type="hidden" name="id" value={phoneNumber.id} />
-                      <button
-                        type="submit"
-                        className="text-sm font-medium text-gray-500 hover:text-gray-900 hover:underline"
-                      >
-                        {phoneNumber.active ? "Desactivar" : "Activar"}
-                      </button>
-                    </form>
+                    <div className="flex items-center justify-end gap-3">
+                      <form action={reconfigureWebhooks}>
+                        <input type="hidden" name="id" value={phoneNumber.id} />
+                        <button
+                          type="submit"
+                          className="text-sm font-medium text-gray-500 hover:text-gray-900 hover:underline"
+                        >
+                          Reconfigurar
+                        </button>
+                      </form>
+                      <form action={togglePhoneNumberActive}>
+                        <input type="hidden" name="id" value={phoneNumber.id} />
+                        <button
+                          type="submit"
+                          className="text-sm font-medium text-gray-500 hover:text-gray-900 hover:underline"
+                        >
+                          {phoneNumber.active ? "Desactivar" : "Activar"}
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}

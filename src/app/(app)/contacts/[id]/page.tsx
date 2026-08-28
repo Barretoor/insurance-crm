@@ -32,6 +32,7 @@ import { RefreshButton } from "@/components/refresh-button";
 import { TaskForm } from "@/components/task-form";
 import { TaskItem } from "@/components/task-item";
 import { AppointmentForm } from "@/components/appointment-form";
+import { MessageThread } from "@/components/message-thread";
 
 export default async function ContactDetailPage({
   params,
@@ -56,12 +57,22 @@ export default async function ContactDetailPage({
         where: { status: "SCHEDULED", startsAt: { gte: new Date() } },
         orderBy: { startsAt: "asc" },
       },
+      messages: {
+        orderBy: { createdAt: "asc" },
+      },
     },
   });
 
   if (!contact) {
     notFound();
   }
+
+  // Mark any unread inbound texts as read now that the agent is viewing this
+  // thread, so the sidebar's unread badge reflects it on the next request.
+  await prisma.message.updateMany({
+    where: { contactId: contact.id, direction: "INBOUND", read: false },
+    data: { read: true },
+  });
 
   return (
     <div className="space-y-8">
@@ -263,6 +274,29 @@ export default async function ContactDetailPage({
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-medium text-gray-900">Mensajes</h2>
+
+        {contact.phone ? (
+          <MessageThread
+            contactId={contact.id}
+            initialMessages={contact.messages.map((m) => ({
+              id: m.id,
+              direction: m.direction,
+              body: m.body,
+              status: m.status,
+              createdAt: m.createdAt.toISOString(),
+            }))}
+          />
+        ) : (
+          <EmptyState
+            icon={Phone}
+            title="Este contacto no tiene teléfono"
+            description="Agrega un teléfono para poder enviarle mensajes de texto."
+          />
         )}
       </section>
 

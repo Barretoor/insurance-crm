@@ -11,6 +11,7 @@ import {
   ListChecks,
   LogOut,
   Menu,
+  MessageSquare,
   Phone,
   PhoneMissed,
   User,
@@ -22,6 +23,7 @@ import { UserAvatar } from "@/components/user-avatar";
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/contacts", label: "Contactos", icon: Users },
+  { href: "/mensajes", label: "Mensajes", icon: MessageSquare },
   { href: "/pipeline", label: "Pipeline", icon: Kanban },
   { href: "/tareas", label: "Tareas", icon: ListChecks },
   { href: "/calendario", label: "Calendario", icon: Calendar },
@@ -30,7 +32,13 @@ const links = [
   { href: "/profile", label: "Mi perfil", icon: User },
 ];
 
-export function NavBar({ avatarUrl }: { avatarUrl: string | null }) {
+export function NavBar({
+  avatarUrl,
+  unreadMessages,
+}: {
+  avatarUrl: string | null;
+  unreadMessages: number;
+}) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
@@ -55,9 +63,12 @@ export function NavBar({ avatarUrl }: { avatarUrl: string | null }) {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Abrir menú"
-          className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
+          className="relative rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
         >
           <Menu className="h-5 w-5" strokeWidth={1.75} />
+          {unreadMessages > 0 && (
+            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-accent-600" />
+          )}
         </button>
       </div>
 
@@ -107,6 +118,11 @@ export function NavBar({ avatarUrl }: { avatarUrl: string | null }) {
                 >
                   <Icon className="h-4 w-4" strokeWidth={1.75} />
                   {link.label}
+                  {link.href === "/mensajes" && unreadMessages > 0 && (
+                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-600 px-1 text-[11px] font-medium text-white">
+                      {unreadMessages > 99 ? "99+" : unreadMessages}
+                    </span>
+                  )}
                 </Link>
               );
             })}

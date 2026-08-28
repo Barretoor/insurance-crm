@@ -65,6 +65,20 @@ enum Theme {
   SYSTEM
 }
 
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum MessageStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  UNDELIVERED
+  FAILED
+  RECEIVED
+}
+
 model Agency {
   id        String   @id @default(cuid())
   name      String
@@ -78,6 +92,7 @@ model Agency {
   pipelineStages PipelineStage[]
   tasks          Task[]
   appointments   Appointment[]
+  messages       Message[]
 
   @@map("agencies")
 }
@@ -97,7 +112,8 @@ model User {
   agencyId String
   agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
 
-  calls Call[]
+  calls    Call[]
+  messages Message[]
 
   @@index([agencyId])
   @@map("users")
@@ -129,6 +145,7 @@ model Contact {
   calls        Call[]
   tasks        Task[]
   appointments Appointment[]
+  messages     Message[]
 
   @@index([agencyId])
   @@index([agencyId, state])
@@ -166,7 +183,8 @@ model PhoneNumber {
   agencyId String
   agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
 
-  calls Call[]
+  calls    Call[]
+  messages Message[]
 
   @@index([agencyId])
   @@index([agencyId, areaCode])
@@ -278,4 +296,38 @@ model Appointment {
   @@index([agencyId, startsAt])
   @@index([contactId])
   @@map("appointments")
+}
+
+model Message {
+  id               String           @id @default(cuid())
+  twilioMessageSid String?          @unique
+  direction        MessageDirection
+  body             String
+  fromNumber       String
+  toNumber         String
+  status           MessageStatus    @default(QUEUED)
+  // Only meaningful for INBOUND messages; OUTBOUND ones are created already
+  // "read" by the agent who sent them, so the unread count only ever
+  // reflects contacts waiting on a reply.
+  read             Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  // Nullable, same reasoning as Call.contactId: an inbound text from an
+  // unrecognized number should still be captured, not dropped.
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  userId String?
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  phoneNumberId String?
+  phoneNumber   PhoneNumber? @relation(fields: [phoneNumberId], references: [id], onDelete: SetNull)
+
+  @@index([agencyId, read])
+  @@index([contactId, createdAt])
+  @@index([phoneNumberId])
+  @@map("messages")
 }
