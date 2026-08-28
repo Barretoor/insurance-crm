@@ -41,16 +41,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           agencyId: user.agencyId,
           role: user.role,
+          theme: user.theme,
         };
       },
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.agencyId = user.agencyId;
         token.role = user.role;
+        token.theme = user.theme;
+      } else if (token.id) {
+        // Not the initial sign-in: refresh theme from the DB on every request
+        // so a change on /profile applies without signing out and back in.
+        // (Deliberately NOT doing this for avatarUrl - that can be a large
+        // base64 string and must never end up inside the JWT session cookie.)
+        const fresh = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { theme: true },
+        });
+        if (fresh) token.theme = fresh.theme;
       }
       return token;
     },
@@ -59,6 +71,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
         session.user.agencyId = token.agencyId as string;
         session.user.role = token.role as "ADMIN" | "AGENT";
+        session.user.theme = token.theme as "LIGHT" | "DARK" | "SYSTEM";
       }
       return session;
     },

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FileText, Phone } from "lucide-react";
+import { FileText, Phone, ListChecks, CalendarClock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { stateLabel } from "@/lib/us-states";
@@ -21,8 +21,17 @@ import {
   formatDateTime,
   formatDuration,
 } from "@/lib/call-labels";
+import {
+  APPOINTMENT_STATUS_BADGE_CLASSES,
+  APPOINTMENT_STATUS_LABELS,
+  formatDurationMin,
+  formatTime,
+} from "@/lib/appointment-labels";
 import { CallButton } from "@/components/call-button";
 import { RefreshButton } from "@/components/refresh-button";
+import { TaskForm } from "@/components/task-form";
+import { TaskItem } from "@/components/task-item";
+import { AppointmentForm } from "@/components/appointment-form";
 
 export default async function ContactDetailPage({
   params,
@@ -39,6 +48,13 @@ export default async function ContactDetailPage({
       calls: {
         orderBy: { startedAt: "desc" },
         include: { recording: true, user: { select: { name: true, email: true } } },
+      },
+      tasks: {
+        orderBy: [{ completed: "asc" }, { dueDate: "asc" }],
+      },
+      appointments: {
+        where: { status: "SCHEDULED", startsAt: { gte: new Date() } },
+        orderBy: { startsAt: "asc" },
       },
     },
   });
@@ -135,7 +151,7 @@ export default async function ContactDetailPage({
                   <th className="px-4 py-2" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody className="divide-y divide-gray-100 bg-surface">
                 {contact.policies.map((policy) => (
                   <tr key={policy.id} className="transition-colors hover:bg-gray-50">
                     <td className="px-4 py-2 text-gray-900">
@@ -248,6 +264,80 @@ export default async function ContactDetailPage({
             ))}
           </div>
         )}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-medium text-gray-900">
+          Tareas relacionadas
+        </h2>
+
+        {contact.tasks.length === 0 ? (
+          <EmptyState
+            icon={ListChecks}
+            title="Sin tareas para este contacto"
+            description="Agrega una abajo para darle seguimiento."
+          />
+        ) : (
+          <div className="divide-y divide-gray-100 rounded-md border border-gray-200 px-4">
+            {contact.tasks.map((task) => (
+              <TaskItem key={task.id} task={{ ...task, contact: null }} />
+            ))}
+          </div>
+        )}
+
+        <details className="rounded-md border border-dashed border-gray-300 p-3">
+          <summary className="cursor-pointer text-sm font-medium text-gray-700">
+            + Nueva tarea
+          </summary>
+          <div className="mt-3">
+            <TaskForm contactId={contact.id} compact />
+          </div>
+        </details>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-medium text-gray-900">Próximas citas</h2>
+
+        {contact.appointments.length === 0 ? (
+          <EmptyState
+            icon={CalendarClock}
+            title="Sin citas agendadas"
+            description="Agenda la primera cita con este contacto."
+          />
+        ) : (
+          <div className="space-y-2">
+            {contact.appointments.map((appt) => (
+              <div
+                key={appt.id}
+                className="flex items-center justify-between gap-3 rounded-md border border-gray-200 p-3"
+              >
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {formatDate(appt.startsAt)} · {formatTime(appt.startsAt)} ·{" "}
+                    {appt.title}
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    {formatDurationMin(appt.durationMin)}
+                  </p>
+                </div>
+                <span
+                  className={`inline-flex flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${APPOINTMENT_STATUS_BADGE_CLASSES[appt.status]}`}
+                >
+                  {APPOINTMENT_STATUS_LABELS[appt.status]}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <details className="rounded-md border border-dashed border-gray-300 p-3">
+          <summary className="cursor-pointer text-sm font-medium text-gray-700">
+            + Agendar cita
+          </summary>
+          <div className="mt-3">
+            <AppointmentForm fixedContactId={contact.id} />
+          </div>
+        </details>
       </section>
     </div>
   );

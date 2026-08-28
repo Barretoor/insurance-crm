@@ -101,7 +101,7 @@ export default async function NumbersPage() {
                 <th className="px-4 py-2" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody className="divide-y divide-gray-100 bg-surface">
               {numbers.map((phoneNumber) => (
                 <tr key={phoneNumber.id} className="transition-colors hover:bg-gray-50">
                   <td className="px-4 py-2 font-medium text-gray-900">

@@ -1,19 +1,23 @@
 @import "tailwindcss";
 
-:root {
-  --background: #fbfbfa;
-  --foreground: #2b2a28;
+@theme inline {
+  --font-sans: var(--font-inter);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-
+/*
+ * Plain (non-inline) @theme: utilities generated from these reference the
+ * CSS variable itself (e.g. `.bg-gray-50 { background-color: var(--color-gray-50) }`)
+ * instead of the literal value. That indirection is required for the .dark
+ * override below to have any effect - `@theme inline` would bake the literal
+ * hex into every utility at build time and dark mode overrides would be
+ * silently ignored.
+ */
+@theme {
   /* Notion-inspired neutral scale: near-white background, near-black (not pure
      black) text, quiet borders. Overriding the built-in gray tokens means
      every existing bg-gray, text-gray and border-gray utility in the app
-     picks this up automatically. */
+     picks this up automatically - light and dark alike (see the .dark
+     override block below, which swaps these same variables). */
   --color-gray-50: #fbfbfa;
   --color-gray-100: #f2f1ee;
   --color-gray-200: #e9e9e7;
@@ -33,6 +37,10 @@
   --color-accent-600: #2f6fe0;
   --color-accent-700: #2558b8;
 
+  /* Card/panel surface - separate from `white` so button labels (text-white
+     on accent buttons) never get caught by the dark-mode surface swap. */
+  --color-surface: #ffffff;
+
   /* Soften the whole radius scale a notch - existing rounded-md usage across
      the app now reads as gently rounded rather than boxy. */
   --radius-sm: 0.375rem;
@@ -41,8 +49,61 @@
   --radius-xl: 0.875rem;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
+:root {
   color-scheme: light;
+}
+
+/*
+ * Dark mode: same design language, inverted lightness, still warm/neutral
+ * (never pure black or pure white). Activated by a `.dark` class on <html>
+ * (see ThemeScript in the root layout) - not the OS media query directly -
+ * so the user's saved Claro/Oscuro/Automático preference always wins.
+ *
+ * This overrides the *variables* Tailwind's generated utilities already read
+ * via var(), so existing classes (bg-gray-50, text-gray-900, bg-red-50, ...)
+ * repaint for dark mode with zero changes to component markup.
+ *
+ * Declared after :root so its color-scheme wins the specificity tie on
+ * <html class="dark"> (same element, same specificity, later rule wins).
+ */
+.dark {
+  --color-gray-50: #191918;
+  --color-gray-100: #232322;
+  --color-gray-200: #37362f;
+  --color-gray-300: #46443c;
+  --color-gray-400: #6b6a63;
+  --color-gray-500: #9b9a93;
+  --color-gray-600: #b3b2ab;
+  --color-gray-700: #c9c8c1;
+  --color-gray-800: #ddddd6;
+  --color-gray-900: #edece6;
+
+  --color-accent-50: #17253d;
+  --color-accent-100: #1e3a5f;
+  --color-accent-500: #5b9bf7;
+  --color-accent-600: #3b82f6;
+  --color-accent-700: #2f6fe0;
+
+  --color-surface: #242321;
+
+  --color-red-50: #3b1a1a;
+  --color-red-600: #f87171;
+  --color-red-700: #fca5a5;
+  --color-red-800: #fecaca;
+
+  --color-green-50: #16261c;
+  --color-green-600: #4ade80;
+  --color-green-700: #86efac;
+
+  --color-amber-50: #2e2410;
+  --color-amber-700: #fcd34d;
+  --color-amber-800: #fde68a;
+
+  --color-purple-50: #241830;
+  --color-purple-700: #d8b4fe;
+
+  --color-sky-50: #12232e;
+  --color-sky-700: #7dd3fc;
+
+  color-scheme: dark;
 }

@@ -152,7 +152,7 @@ export default async function ContactsPage({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody className="divide-y divide-gray-100 bg-surface">
               {contacts.map((contact) => (
                 <tr key={contact.id} className="transition-colors hover:bg-gray-50">
                   <td className="px-4 py-2">

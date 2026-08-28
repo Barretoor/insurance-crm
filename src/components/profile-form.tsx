@@ -1,12 +1,20 @@
 "use client";
 
 import { useActionState } from "react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { updateProfile } from "@/app/(app)/profile/actions";
+import { applyTheme, type ThemePreference } from "@/lib/theme";
+
+const THEME_OPTIONS: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
+  { value: "LIGHT", label: "Claro", icon: Sun },
+  { value: "DARK", label: "Oscuro", icon: Moon },
+  { value: "SYSTEM", label: "Automático", icon: Monitor },
+];
 
 export function ProfileForm({
   defaultValues,
 }: {
-  defaultValues: { name: string; phone: string };
+  defaultValues: { name: string; phone: string; theme: ThemePreference };
 }) {
   const [state, formAction, pending] = useActionState(updateProfile, {});
 
@@ -52,6 +60,29 @@ export function ProfileForm({
           Formato E.164, ej. +12145550100. Twilio te llamará aquí primero y
           luego te conectará con el contacto.
         </p>
+      </div>
+
+      <div>
+        <span className="block text-sm font-medium text-gray-700">Tema</span>
+        <div className="mt-1 grid grid-cols-3 gap-2">
+          {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+            <label
+              key={value}
+              className="flex cursor-pointer flex-col items-center gap-1 rounded-md border border-gray-300 px-2 py-2.5 text-xs font-medium text-gray-600 transition-colors has-checked:border-accent-500 has-checked:bg-accent-50 has-checked:text-accent-700 hover:bg-gray-50"
+            >
+              <input
+                type="radio"
+                name="theme"
+                value={value}
+                defaultChecked={defaultValues.theme === value}
+                onChange={() => applyTheme(value)}
+                className="sr-only"
+              />
+              <Icon className="h-4 w-4" strokeWidth={1.75} />
+              {label}
+            </label>
+          ))}
+        </div>
       </div>
 
       <button

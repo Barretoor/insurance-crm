@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ListChecks, CalendarClock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import {
@@ -14,6 +15,26 @@ export default async function DashboardPage() {
   const now = new Date();
   const in30Days = new Date(now);
   in30Days.setDate(in30Days.getDate() + 30);
+
+  const startOfToday = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  );
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setUTCDate(endOfToday.getUTCDate() + 1);
+  endOfToday.setUTCMilliseconds(-1);
+
+  const [tasksToday, appointmentsToday] = await Promise.all([
+    prisma.task.count({
+      where: { agencyId, completed: false, dueDate: { lte: endOfToday } },
+    }),
+    prisma.appointment.count({
+      where: {
+        agencyId,
+        status: "SCHEDULED",
+        startsAt: { gte: startOfToday, lte: endOfToday },
+      },
+    }),
+  ]);
 
   const upcomingRenewals = await prisma.policy.findMany({
     where: {
@@ -45,6 +66,33 @@ export default async function DashboardPage() {
           Resumen de tu agencia.
         </p>
       </div>
+
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Link
+          href="/tareas"
+          className="flex items-center gap-3 rounded-md border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+        >
+          <ListChecks className="h-5 w-5 flex-shrink-0 text-gray-400" strokeWidth={1.75} />
+          <div>
+            <p className="text-xl font-semibold text-gray-900">{tasksToday}</p>
+            <p className="text-sm text-gray-500">
+              {tasksToday === 1 ? "tarea pendiente hoy" : "tareas pendientes hoy"}
+            </p>
+          </div>
+        </Link>
+        <Link
+          href="/calendario"
+          className="flex items-center gap-3 rounded-md border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+        >
+          <CalendarClock className="h-5 w-5 flex-shrink-0 text-gray-400" strokeWidth={1.75} />
+          <div>
+            <p className="text-xl font-semibold text-gray-900">{appointmentsToday}</p>
+            <p className="text-sm text-gray-500">
+              {appointmentsToday === 1 ? "cita agendada hoy" : "citas agendadas hoy"}
+            </p>
+          </div>
+        </Link>
+      </section>
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
@@ -123,7 +171,7 @@ export default async function DashboardPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody className="divide-y divide-gray-100 bg-surface">
                 {upcomingRenewals.map((policy) => (
                   <tr key={policy.id} className="transition-colors hover:bg-gray-50">
                     <td className="px-4 py-2">

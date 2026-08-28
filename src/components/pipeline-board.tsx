@@ -137,7 +137,7 @@ function Card({ contact }: { contact: PipelineCardData }) {
       style={style}
       {...listeners}
       {...attributes}
-      className={`cursor-grab rounded-md border border-gray-200 bg-white p-3.5 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md active:cursor-grabbing ${
+      className={`cursor-grab rounded-md border border-gray-200 bg-surface p-3.5 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md active:cursor-grabbing ${
         isDragging ? "opacity-50" : ""
       }`}
     >
