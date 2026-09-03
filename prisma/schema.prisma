@@ -112,8 +112,9 @@ model User {
   agencyId String
   agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
 
-  calls    Call[]
-  messages Message[]
+  calls               Call[]
+  messages            Message[]
+  passwordResetTokens PasswordResetToken[]
 
   @@index([agencyId])
   @@map("users")
@@ -330,4 +331,18 @@ model Message {
   @@index([contactId, createdAt])
   @@index([phoneNumberId])
   @@map("messages")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }

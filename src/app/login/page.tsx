@@ -17,6 +17,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered");
+  const reset = searchParams.get("reset");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,6 +63,12 @@ function LoginForm() {
           </p>
         )}
 
+        {reset && (
+          <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
+            Contraseña actualizada. Ahora inicia sesión.
+          </p>
+        )}
+
         {error && (
           <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
@@ -87,12 +94,20 @@ function LoginForm() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Contraseña
-            </label>
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Contraseña
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium text-gray-500 hover:text-gray-900 hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
             <input
               id="password"
               type="password"
