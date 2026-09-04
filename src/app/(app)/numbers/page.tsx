@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
@@ -48,28 +49,36 @@ export default async function NumbersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-medium text-gray-900 tracking-tight">
-          Administrar números
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Pool de números de Twilio usados para presencia local al llamar
-          contactos. Compra los números en el dashboard de Twilio y regístralos
-          aquí.
-        </p>
-        <p className="mt-1 text-sm text-gray-500">
-          Al agregar un número, configuramos automáticamente sus webhooks de
-          voz y SMS entrantes en Twilio.
-          {inboundWebhookUrl() && (
-            <>
-              {" "}
-              Si falla, configúralos tú manualmente ahí:{" "}
-              <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">
-                {inboundWebhookUrl()}
-              </code>
-            </>
-          )}
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-medium text-gray-900 tracking-tight">
+            Administrar números
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Pool de números de Twilio usados para presencia local al llamar
+            contactos. Cómpralos directamente desde aquí, o si ya los tienes
+            en tu cuenta de Twilio, regístralos abajo.
+          </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Al agregar un número, configuramos automáticamente sus webhooks de
+            voz y SMS entrantes en Twilio.
+            {inboundWebhookUrl() && (
+              <>
+                {" "}
+                Si falla, configúralos tú manualmente ahí:{" "}
+                <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">
+                  {inboundWebhookUrl()}
+                </code>
+              </>
+            )}
+          </p>
+        </div>
+        <Link
+          href="/numbers/buy"
+          className="flex-shrink-0 rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-700"
+        >
+          Comprar número
+        </Link>
       </div>
 
       <PhoneNumberForm />
