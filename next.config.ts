@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -10,4 +11,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: "barretoor",
+  project: "insurance-crm",
+  // No SENTRY_AUTH_TOKEN is configured, so source map upload is skipped -
+  // errors still report fine, just with minified stack traces. Add that env
+  // var (from Sentry -> Settings -> Auth Tokens) to enable it.
+  silent: true,
+  widenClientFileUpload: true,
+});
