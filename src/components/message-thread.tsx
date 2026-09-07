@@ -12,6 +12,7 @@ export type ThreadMessage = {
   body: string;
   status: MessageStatus;
   createdAt: string;
+  automated: boolean;
 };
 
 function formatTime(iso: string): string {
@@ -56,7 +57,8 @@ export function MessageThread({
         return;
       }
 
-      setMessages((prev) => [...prev, data.message]);
+      // Sent through this form, so always a manual (non-automated) message.
+      setMessages((prev) => [...prev, { ...data.message, automated: false }]);
       setText("");
       router.refresh();
     } catch {
@@ -95,6 +97,7 @@ export function MessageThread({
                   {formatTime(message.createdAt)}
                   {message.direction === "OUTBOUND" &&
                     ` · ${MESSAGE_STATUS_LABELS[message.status]}`}
+                  {message.automated && " · Automático"}
                 </p>
               </div>
             </div>

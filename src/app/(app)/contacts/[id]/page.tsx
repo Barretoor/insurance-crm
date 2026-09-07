@@ -289,6 +289,7 @@ export default async function ContactDetailPage({
               body: m.body,
               status: m.status,
               createdAt: m.createdAt.toISOString(),
+              automated: m.automationId !== null,
             }))}
           />
         ) : (

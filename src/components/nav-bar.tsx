@@ -17,6 +17,7 @@ import {
   User,
   Users,
   X,
+  Zap,
 } from "lucide-react";
 import { UserAvatar } from "@/components/user-avatar";
 
@@ -28,6 +29,7 @@ const links = [
   { href: "/tareas", label: "Tareas", icon: ListChecks },
   { href: "/calendario", label: "Calendario", icon: Calendar },
   { href: "/calls/unmatched", label: "Sin asociar", icon: PhoneMissed },
+  { href: "/automatizaciones", label: "Automatizaciones", icon: Zap, adminOnly: true },
   { href: "/numbers", label: "Números", icon: Phone, adminOnly: true },
   { href: "/profile", label: "Mi perfil", icon: User },
 ];

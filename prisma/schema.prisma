@@ -70,6 +70,12 @@ enum MessageDirection {
   OUTBOUND
 }
 
+enum AutomationTrigger {
+  STAGE_ENTERED
+  POLICY_RENEWAL_UPCOMING
+  MISSED_CALL
+}
+
 enum MessageStatus {
   QUEUED
   SENT
@@ -93,6 +99,7 @@ model Agency {
   tasks          Task[]
   appointments   Appointment[]
   messages       Message[]
+  automations    Automation[]
 
   @@map("agencies")
 }
@@ -166,7 +173,8 @@ model PipelineStage {
   agencyId String
   agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
 
-  contacts Contact[]
+  contacts     Contact[]
+  automations  Automation[]
 
   @@index([agencyId, order])
   @@map("pipeline_stages")
@@ -327,10 +335,40 @@ model Message {
   phoneNumberId String?
   phoneNumber   PhoneNumber? @relation(fields: [phoneNumberId], references: [id], onDelete: SetNull)
 
+  // Set when this message was sent by the daily automation run rather than
+  // an agent, so the chat thread can label it "Automático".
+  automationId String?
+  automation   Automation? @relation(fields: [automationId], references: [id], onDelete: SetNull)
+
   @@index([agencyId, read])
   @@index([contactId, createdAt])
   @@index([phoneNumberId])
   @@map("messages")
+}
+
+model Automation {
+  id              String            @id @default(cuid())
+  name            String
+  trigger         AutomationTrigger
+  messageTemplate String
+  active          Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Only set (and only meaningful) when trigger = STAGE_ENTERED.
+  stageId String?
+  stage   PipelineStage? @relation(fields: [stageId], references: [id], onDelete: SetNull)
+
+  // Only set (and only meaningful) when trigger = POLICY_RENEWAL_UPCOMING.
+  daysBeforeRenewal Int?
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  messages Message[]
+
+  @@index([agencyId, active])
+  @@map("automations")
 }
 
 model PasswordResetToken {
