@@ -1,8 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { appUrl } from "@/lib/twilio";
 import { verifyTwilioRequest } from "@/lib/twilio-verify";
-import { emptyMessagingResponse } from "@/lib/sms-twiml";
+import { emptyMessagingResponse, messagingResponseWithReply } from "@/lib/sms-twiml";
 import { normalizePhoneDigits } from "@/lib/phone";
+import {
+  isStartKeyword,
+  isStopKeyword,
+  START_CONFIRMATION_MESSAGE,
+  STOP_CONFIRMATION_MESSAGE,
+} from "@/lib/sms-keywords";
 
 /**
  * Shared "a text comes in" webhook for every Twilio number in every agency's
@@ -51,6 +57,46 @@ export async function POST(request: Request) {
       twilioMessageSid: params.MessageSid || null,
     },
   });
+
+  // TCPA compliance: STOP/START only apply when we recognize the sender as
+  // an existing contact. The confirmation reply below bypasses the normal
+  // send path (and its opt-out check) since it's the confirmation *of* the
+  // opt-out/opt-in itself, not a regular message.
+  if (contact) {
+    let confirmation: string | null = null;
+
+    if (isStopKeyword(body) && !contact.smsOptOut) {
+      await prisma.contact.update({
+        where: { id: contact.id },
+        data: { smsOptOut: true, smsOptOutAt: new Date() },
+      });
+      confirmation = STOP_CONFIRMATION_MESSAGE;
+    } else if (isStartKeyword(body) && contact.smsOptOut) {
+      await prisma.contact.update({
+        where: { id: contact.id },
+        data: { smsOptOut: false, smsOptOutAt: null },
+      });
+      confirmation = START_CONFIRMATION_MESSAGE;
+    }
+
+    if (confirmation) {
+      await prisma.message.create({
+        data: {
+          direction: "OUTBOUND",
+          body: confirmation,
+          status: "SENT",
+          read: true,
+          agencyId: phoneNumber.agencyId,
+          contactId: contact.id,
+          phoneNumberId: phoneNumber.id,
+          fromNumber: to,
+          toNumber: from,
+        },
+      });
+
+      return messagingResponseWithReply(confirmation);
+    }
+  }
 
   return emptyMessagingResponse();
 }

@@ -82,3 +82,24 @@ export async function updateContact(
   revalidatePath(`/contacts/${contactId}`);
   redirect(`/contacts/${contactId}`);
 }
+
+/** Manual override for the STOP/START flow - e.g. if a carrier swallowed a STOP text before it reached us. */
+export async function toggleSmsOptOut(formData: FormData) {
+  const session = await requireSession();
+
+  const contactId = String(formData.get("contactId") ?? "");
+  const contact = await prisma.contact.findFirst({
+    where: { id: contactId, agencyId: session.user.agencyId },
+  });
+  if (!contact) return;
+
+  await prisma.contact.update({
+    where: { id: contact.id },
+    data: {
+      smsOptOut: !contact.smsOptOut,
+      smsOptOutAt: !contact.smsOptOut ? new Date() : null,
+    },
+  });
+
+  revalidatePath(`/contacts/${contactId}`);
+}

@@ -144,6 +144,11 @@ model Contact {
   agency      Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   phoneDigits String?
 
+  // Set when the contact replies STOP to an SMS (TCPA compliance). Blocks
+  // both manual and automated sends until they reply START.
+  smsOptOut   Boolean   @default(false)
+  smsOptOutAt DateTime?
+
   // Nullable so existing rows survive the migration; app code always sets it
   // (defaults to the agency's lowest-`order` stage) on create.
   stageId String?

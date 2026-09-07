@@ -33,6 +33,7 @@ import { TaskForm } from "@/components/task-form";
 import { TaskItem } from "@/components/task-item";
 import { AppointmentForm } from "@/components/appointment-form";
 import { MessageThread } from "@/components/message-thread";
+import { toggleSmsOptOut } from "../actions";
 
 export default async function ContactDetailPage({
   params,
@@ -278,11 +279,32 @@ export default async function ContactDetailPage({
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-medium text-gray-900">Mensajes</h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-medium text-gray-900">Mensajes</h2>
+            {contact.smsOptOut && (
+              <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                Dado de baja (STOP)
+              </span>
+            )}
+          </div>
+          {contact.phone && (
+            <form action={toggleSmsOptOut}>
+              <input type="hidden" name="contactId" value={contact.id} />
+              <button
+                type="submit"
+                className="text-xs font-medium text-gray-500 hover:text-gray-900 hover:underline"
+              >
+                {contact.smsOptOut ? "Reactivar mensajes" : "Marcar como dado de baja"}
+              </button>
+            </form>
+          )}
+        </div>
 
         {contact.phone ? (
           <MessageThread
             contactId={contact.id}
+            optedOut={contact.smsOptOut}
             initialMessages={contact.messages.map((m) => ({
               id: m.id,
               direction: m.direction,

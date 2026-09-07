@@ -31,7 +31,7 @@ async function runStageEnteredAutomation(automation: Automation): Promise<number
 
   const contacts = await prisma.contact.findMany({
     where: { agencyId: automation.agencyId, stageId: automation.stageId },
-    select: { id: true, name: true, phone: true, areaCode: true, state: true },
+    select: { id: true, name: true, phone: true, areaCode: true, state: true, smsOptOut: true },
   });
 
   let sent = 0;
@@ -64,7 +64,7 @@ async function runPolicyRenewalAutomation(automation: Automation): Promise<numbe
     },
     include: {
       contact: {
-        select: { id: true, name: true, phone: true, areaCode: true, state: true },
+        select: { id: true, name: true, phone: true, areaCode: true, state: true, smsOptOut: true },
       },
     },
   });
@@ -108,7 +108,7 @@ async function runMissedCallAutomation(automation: Automation): Promise<number> 
     },
     include: {
       contact: {
-        select: { id: true, name: true, phone: true, areaCode: true, state: true },
+        select: { id: true, name: true, phone: true, areaCode: true, state: true, smsOptOut: true },
       },
     },
   });

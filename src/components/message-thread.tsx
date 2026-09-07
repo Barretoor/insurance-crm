@@ -25,9 +25,11 @@ function formatTime(iso: string): string {
 export function MessageThread({
   contactId,
   initialMessages,
+  optedOut,
 }: {
   contactId: string;
   initialMessages: ThreadMessage[];
+  optedOut: boolean;
 }) {
   const router = useRouter();
   const [messages, setMessages] = useState(initialMessages);
@@ -105,33 +107,40 @@ export function MessageThread({
         )}
       </div>
 
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        className="flex items-end gap-2 border-t border-gray-200 p-3"
-      >
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              formRef.current?.requestSubmit();
-            }
-          }}
-          rows={1}
-          placeholder="Escribe un mensaje..."
-          className="block w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
-        />
-        <button
-          type="submit"
-          disabled={pending || !text.trim()}
-          aria-label="Enviar mensaje"
-          className="flex flex-shrink-0 items-center justify-center rounded-md bg-accent-600 p-2.5 text-white transition-colors hover:bg-accent-700 disabled:opacity-60"
+      {optedOut ? (
+        <p className="border-t border-gray-200 p-3 text-sm text-amber-700">
+          Este contacto se dio de baja de mensajes de texto (respondió STOP).
+          No se le pueden enviar mensajes hasta que responda START.
+        </p>
+      ) : (
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className="flex items-end gap-2 border-t border-gray-200 p-3"
         >
-          <Send className="h-4 w-4" strokeWidth={1.75} />
-        </button>
-      </form>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                formRef.current?.requestSubmit();
+              }
+            }}
+            rows={1}
+            placeholder="Escribe un mensaje..."
+            className="block w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
+          />
+          <button
+            type="submit"
+            disabled={pending || !text.trim()}
+            aria-label="Enviar mensaje"
+            className="flex flex-shrink-0 items-center justify-center rounded-md bg-accent-600 p-2.5 text-white transition-colors hover:bg-accent-700 disabled:opacity-60"
+          >
+            <Send className="h-4 w-4" strokeWidth={1.75} />
+          </button>
+        </form>
+      )}
       {error && <p className="px-3 pb-3 text-sm text-red-700">{error}</p>}
     </div>
   );

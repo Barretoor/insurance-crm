@@ -9,6 +9,7 @@ type SendSmsContact = {
   phone: string | null;
   areaCode: string | null;
   state: string | null;
+  smsOptOut: boolean;
 };
 
 type SendSmsParams = {
@@ -33,6 +34,12 @@ export async function sendSms({
   userId,
   automationId,
 }: SendSmsParams) {
+  if (contact.smsOptOut) {
+    return {
+      error: "Este contacto se dio de baja de mensajes de texto (STOP).",
+    } as const;
+  }
+
   const toNumber = toE164(contact.phone);
   if (!toNumber) {
     return { error: "El contacto no tiene un teléfono válido registrado." } as const;
