@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ListChecks, CalendarClock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { UserAvatar } from "@/components/user-avatar";
 import {
   POLICY_TYPE_LABELS,
   formatCurrency,
@@ -11,6 +12,13 @@ import {
 export default async function DashboardPage() {
   const session = await requireSession();
   const agencyId = session.user.agencyId;
+
+  // Fetched fresh here (not stored in the JWT/session) since avatarUrl can be
+  // a sizeable base64 string that must never end up inside the session cookie.
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { avatarUrl: true },
+  });
 
   const now = new Date();
   const in30Days = new Date(now);
@@ -58,13 +66,21 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-medium text-gray-900 tracking-tight">
-          Bienvenido, {session.user.name ?? session.user.email}
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Resumen de tu agencia.
-        </p>
+      <div className="flex items-center gap-4">
+        <UserAvatar
+          name={session.user.name}
+          email={session.user.email}
+          avatarUrl={user?.avatarUrl ?? null}
+          className="h-14 w-14 text-lg"
+        />
+        <div>
+          <h1 className="text-2xl font-medium text-gray-900 tracking-tight">
+            Bienvenido, {session.user.name ?? session.user.email}
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Resumen de tu agencia.
+          </p>
+        </div>
       </div>
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
