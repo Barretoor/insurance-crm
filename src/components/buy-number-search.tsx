@@ -111,63 +111,39 @@ export function BuyNumberSearch() {
       )}
 
       {results && results.length > 0 && (
-        <div className="overflow-x-auto rounded-md border border-gray-200">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">Número</th>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">
-                  Ciudad / Estado
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">
-                  Precio mensual
-                </th>
-                <th className="px-4 py-2" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-surface">
-              {results.map((number) => {
-                const purchased = purchasedNumbers.has(number.phoneNumber);
-                return (
-                  <tr
-                    key={number.phoneNumber}
-                    className="transition-colors hover:bg-gray-50"
+        <div className="divide-y divide-gray-100 rounded-md border border-gray-200 bg-surface">
+          {results.map((number) => {
+            const purchased = purchasedNumbers.has(number.phoneNumber);
+            return (
+              <div
+                key={number.phoneNumber}
+                className="flex items-center justify-between gap-3 p-4 transition-colors hover:bg-gray-50"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium text-gray-900">{number.phoneNumber}</p>
+                  <p className="mt-0.5 truncate text-sm text-gray-500">
+                    {[number.locality, number.region].filter(Boolean).join(", ") || "—"}
+                    {priceInfo?.monthlyPrice != null &&
+                      ` · $${priceInfo.monthlyPrice.toFixed(2)} ${(priceInfo.priceUnit ?? "").toUpperCase()}/mes`}
+                  </p>
+                </div>
+                {purchased ? (
+                  <span className="flex-shrink-0 text-sm font-medium text-green-700">
+                    Comprado
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handlePurchase(number)}
+                    disabled={purchasingNumber === number.phoneNumber}
+                    className="flex-shrink-0 rounded-md bg-accent-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-700 disabled:opacity-60"
                   >
-                    <td className="px-4 py-2 font-medium text-gray-900">
-                      {number.phoneNumber}
-                    </td>
-                    <td className="px-4 py-2 text-gray-600">
-                      {[number.locality, number.region].filter(Boolean).join(", ") ||
-                        "—"}
-                    </td>
-                    <td className="px-4 py-2 text-gray-600">
-                      {priceInfo?.monthlyPrice != null
-                        ? `$${priceInfo.monthlyPrice.toFixed(2)} ${(priceInfo.priceUnit ?? "").toUpperCase()}/mes`
-                        : "—"}
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      {purchased ? (
-                        <span className="text-sm font-medium text-green-700">
-                          Comprado
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handlePurchase(number)}
-                          disabled={purchasingNumber === number.phoneNumber}
-                          className="rounded-md bg-accent-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-700 disabled:opacity-60"
-                        >
-                          {purchasingNumber === number.phoneNumber
-                            ? "Comprando..."
-                            : "Comprar"}
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    {purchasingNumber === number.phoneNumber ? "Comprando..." : "Comprar"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

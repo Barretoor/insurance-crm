@@ -37,3 +37,25 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string) {
     `,
   });
 }
+
+export async function sendTeamInviteEmail(to: string, name: string, inviteUrl: string) {
+  await resendClient().emails.send({
+    from: EMAIL_FROM,
+    to,
+    subject: "Te agregaron al CRM Seguros de Vida",
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #2b2a28;">
+        <h2 style="font-weight: 500;">¡Bienvenido/a, ${name}!</h2>
+        <p>Te agregaron como agente en el CRM de seguros de vida. Crea tu contraseña para empezar a usarlo.</p>
+        <p>
+          <a href="${inviteUrl}" style="display: inline-block; background: #2f6fe0; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 500;">
+            Crear mi contraseña
+          </a>
+        </p>
+        <p style="color: #7c7b77; font-size: 13px;">
+          Este enlace expira en 7 días.
+        </p>
+      </div>
+    `,
+  });
+}

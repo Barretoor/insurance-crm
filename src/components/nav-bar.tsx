@@ -15,6 +15,7 @@ import {
   Phone,
   PhoneMissed,
   User,
+  UserPlus,
   Users,
   X,
   Zap,
@@ -31,6 +32,7 @@ const links = [
   { href: "/calls/unmatched", label: "Sin asociar", icon: PhoneMissed },
   { href: "/automatizaciones", label: "Automatizaciones", icon: Zap, adminOnly: true },
   { href: "/numbers", label: "Números", icon: Phone, adminOnly: true },
+  { href: "/equipo", label: "Equipo", icon: UserPlus, adminOnly: true },
   { href: "/profile", label: "Mi perfil", icon: User },
 ];
 
