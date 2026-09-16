@@ -12,7 +12,7 @@ const globalForPrisma = globalThis as unknown as {
 // it and start throwing "max clients reached" errors on ordinary page loads.
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
-  max: 3,
+  max: 1,
 });
 
 export const prisma =
