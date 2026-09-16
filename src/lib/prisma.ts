@@ -5,14 +5,16 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Supabase's Supavisor pooler already does the real connection pooling and
-// caps total clients very low (pool_size: 15 on this project) - our own pg
-// pool on top of that must stay small, or a handful of concurrent Vercel
-// serverless instances (each defaulting to up to 10 connections) can exhaust
-// it and start throwing "max clients reached" errors on ordinary page loads.
+// DATABASE_URL must point at Supabase's *transaction*-mode pooler (port
+// 6543, ?pgbouncer=true) - that's what allows far more concurrent app
+// connections (200 clients here) than the session-mode pooler, which caps
+// clients at the same small backend pool_size (15) and was the real cause
+// of a "max clients reached" outage. Still capping our own pg pool per
+// instance to a modest size - Supavisor already does the real pooling, and
+// many concurrent serverless instances add up fast otherwise.
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
-  max: 1,
+  max: 5,
 });
 
 export const prisma =
