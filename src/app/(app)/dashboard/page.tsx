@@ -3,6 +3,7 @@ import { ListChecks, CalendarClock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { UserAvatar } from "@/components/user-avatar";
+import { getUserAvatarUrl } from "@/lib/user-avatar-url";
 import {
   POLICY_TYPE_LABELS,
   formatCurrency,
@@ -13,12 +14,9 @@ export default async function DashboardPage() {
   const session = await requireSession();
   const agencyId = session.user.agencyId;
 
-  // Fetched fresh here (not stored in the JWT/session) since avatarUrl can be
-  // a sizeable base64 string that must never end up inside the session cookie.
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { avatarUrl: true },
-  });
+  // Same cached lookup the layout uses for the sidebar - de-duped to one
+  // query per request instead of two.
+  const avatarUrl = await getUserAvatarUrl(session.user.id);
 
   const now = new Date();
   const in30Days = new Date(now);
@@ -70,7 +68,7 @@ export default async function DashboardPage() {
         <UserAvatar
           name={session.user.name}
           email={session.user.email}
-          avatarUrl={user?.avatarUrl ?? null}
+          avatarUrl={avatarUrl}
           className="h-14 w-14 text-lg"
         />
         <div>
