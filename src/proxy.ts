@@ -9,6 +9,18 @@ export default auth((req) => {
     req.nextUrl.pathname.startsWith("/forgot-password") ||
     req.nextUrl.pathname.startsWith("/reset-password");
 
+  // Public lead-capture form and its legal pages (also linked from the A2P
+  // 10DLC campaign registration) - no login required, and logged-in agents
+  // aren't redirected away from them either.
+  const isPublicRoute =
+    req.nextUrl.pathname.startsWith("/cotizacion") ||
+    req.nextUrl.pathname.startsWith("/privacidad") ||
+    req.nextUrl.pathname.startsWith("/terminos");
+
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
   if (!isLoggedIn && !isAuthRoute) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
