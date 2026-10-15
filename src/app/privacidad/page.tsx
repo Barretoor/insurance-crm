@@ -101,7 +101,7 @@ export default function PrivacidadPage() {
             </p>
             <p className="mt-2 text-sm italic text-gray-700">
               &ldquo;No mobile information will be shared with third parties/affiliates for
-              marketing or promotional purposes. All other categories exclude text messaging
+              marketing or promotional purposes. All the above categories exclude text messaging
               originator opt-in data and consent; this information will not be shared with any
               third parties.&rdquo;
             </p>
@@ -170,6 +170,77 @@ export default function PrivacidadPage() {
             del programa de SMS.
           </p>
         </section>
+
+        <div id="english" lang="en" className="space-y-6 border-t-2 border-gray-300 pt-8">
+          <div className="space-y-1">
+            <h2 className="text-xl font-medium text-gray-900">
+              Privacy Policy (English)
+            </h2>
+            <p className="text-sm text-gray-500">
+              Andrea Insurance. Effective September 20, 2026.
+            </p>
+          </div>
+
+          <section className="space-y-2">
+            <h3 className="text-base font-medium text-gray-900">Information we collect</h3>
+            <p className="text-sm text-gray-600">
+              When you request a life insurance quote through our online quote/contact form, or
+              contact us directly, we collect your name, phone number, email address, mailing
+              address, and details related to your quote or policy that you choose to provide.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h3 className="text-base font-medium text-gray-900">How we use your information</h3>
+            <p className="text-sm text-gray-600">
+              We use your information only to prepare and follow up on your life insurance
+              quote, schedule and remind you of appointments, answer your questions, and send
+              service updates about your coverage, including by text message (SMS) if you opted
+              in.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h3 className="text-base font-medium text-gray-900">Text messaging (SMS)</h3>
+            <p className="text-sm text-gray-600">
+              If you check the SMS consent box on our quote form, you agree to receive text
+              messages from Andrea Insurance about your quote, appointment reminders, and
+              policy updates. Message frequency varies. Message and data rates may apply.
+              Consent is not a condition of purchase. Reply <strong>STOP</strong> at any time
+              to opt out, or <strong>HELP</strong> for help. See our{" "}
+              <Link href="/terminos" className="font-medium text-gray-900 underline">
+                Terms and Conditions
+              </Link>
+              .
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h3 className="text-base font-medium text-gray-900">
+              Sharing of information
+            </h3>
+            <p className="text-sm font-medium text-gray-900">
+              No mobile information will be shared with third parties or affiliates for
+              marketing or promotional purposes. All the above categories exclude text
+              messaging originator opt-in data and consent; this information will not be
+              shared with any third parties.
+            </p>
+            <p className="text-sm text-gray-600">
+              We do not sell your personal information. We may share it only with service
+              providers that help us operate (such as our messaging platform) solely to deliver
+              our services to you, or when required by law.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h3 className="text-base font-medium text-gray-900">Your choices and contact</h3>
+            <p className="text-sm text-gray-600">
+              You may opt out of text messages at any time by replying STOP, and you may ask us
+              to update or delete your personal information. Contact Andrea Insurance at +1
+              (682) 277-4544.
+            </p>
+          </section>
+        </div>
       </div>
     </div>
   );
