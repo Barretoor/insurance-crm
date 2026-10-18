@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
 import { MESSAGE_STATUS_LABELS } from "@/lib/message-labels";
+import { AutoRefresh } from "@/components/auto-refresh";
 import type { MessageDirection, MessageStatus } from "@/generated/prisma/enums";
 
 export type ThreadMessage = {
@@ -32,11 +33,24 @@ export function MessageThread({
   optedOut: boolean;
 }) {
   const router = useRouter();
-  const [messages, setMessages] = useState(initialMessages);
+  // initialMessages is the source of truth (it refreshes from the server);
+  // just-sent messages are shown right away until the server copy arrives.
+  const [justSent, setJustSent] = useState<ThreadMessage[]>([]);
+  const messages = [
+    ...initialMessages,
+    ...justSent.filter((s) => !initialMessages.some((m) => m.id === s.id)),
+  ];
   const [text, setText] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const lastMessageId = messages.at(-1)?.id;
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (list) list.scrollTop = list.scrollHeight;
+  }, [lastMessageId]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -60,7 +74,7 @@ export function MessageThread({
       }
 
       // Sent through this form, so always a manual (non-automated) message.
-      setMessages((prev) => [...prev, { ...data.message, automated: false }]);
+      setJustSent((prev) => [...prev, { ...data.message, automated: false }]);
       setText("");
       router.refresh();
     } catch {
@@ -72,7 +86,8 @@ export function MessageThread({
 
   return (
     <div className="flex flex-col rounded-md border border-gray-200">
-      <div className="flex max-h-[420px] min-h-[160px] flex-col gap-2 overflow-y-auto p-4">
+      <AutoRefresh />
+      <div ref={listRef} className="flex max-h-[420px] min-h-[160px] flex-col gap-2 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <p className="m-auto text-sm text-gray-400">
             Sin mensajes todavía. Escribe uno abajo para empezar la conversación.

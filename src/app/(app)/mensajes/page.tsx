@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { formatDateTime } from "@/lib/call-labels";
 import { EmptyState } from "@/components/empty-state";
+import { AutoRefresh } from "@/components/auto-refresh";
 
 type ConversationRow = {
   key: string;
@@ -57,6 +58,7 @@ export default async function MensajesPage() {
 
   return (
     <div className="space-y-8">
+      <AutoRefresh />
       <div>
         <h1 className="text-2xl font-medium text-gray-900 tracking-tight">Mensajes</h1>
         <p className="mt-1 text-sm text-gray-500">

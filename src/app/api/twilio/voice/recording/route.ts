@@ -43,5 +43,5 @@ export async function POST(request: Request) {
     },
   });
 
-  return new Response("", { status: 204 });
+  return new Response(null, { status: 204 });
 }
