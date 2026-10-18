@@ -16,7 +16,6 @@ export default function LoginPage() {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const registered = searchParams.get("registered");
   const reset = searchParams.get("reset");
 
   const [email, setEmail] = useState("");
@@ -56,12 +55,6 @@ function LoginForm() {
             Accede a tu CRM de seguros de vida
           </p>
         </div>
-
-        {registered && (
-          <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
-            Cuenta creada correctamente. Ahora inicia sesión.
-          </p>
-        )}
 
         {reset && (
           <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
@@ -126,13 +119,6 @@ function LoginForm() {
             {isSubmitting ? "Entrando..." : "Entrar"}
           </button>
         </form>
-
-        <p className="text-center text-sm text-gray-500">
-          ¿No tienes cuenta?{" "}
-          <Link href="/register" className="font-medium text-gray-900 underline">
-            Regístrate
-          </Link>
-        </p>
       </div>
     </div>
   );
