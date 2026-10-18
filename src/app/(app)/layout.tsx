@@ -22,7 +22,7 @@ export default async function AppLayout({
     <div className="flex flex-1 flex-col md:flex-row">
       <NavBar avatarUrl={avatarUrl} unreadMessages={unreadMessages} />
       <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-10">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-6 pb-[calc(4.5rem+env(safe-area-inset-bottom))] sm:px-6 md:px-8 md:py-10">
           {children}
         </div>
       </main>

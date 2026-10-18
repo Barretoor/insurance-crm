@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand";
 import { ResetPasswordForm } from "@/components/reset-password-form";
 
 export default async function ResetPasswordPage({
@@ -11,6 +12,7 @@ export default async function ResetPasswordPage({
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm space-y-6">
+        <BrandLogo size="lg" centered />
         <div className="text-center">
           <h1 className="text-2xl font-medium text-gray-900 tracking-tight">
             Restablecer contraseña

@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand";
 
 export default function LoginPage() {
   return (
@@ -47,12 +48,13 @@ function LoginForm() {
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm space-y-6">
+        <BrandLogo size="lg" centered />
         <div className="text-center">
           <h1 className="text-2xl font-medium text-gray-900 tracking-tight">
             Iniciar sesión
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Accede a tu CRM de seguros de vida
+            Accede a tu cuenta
           </p>
         </div>
 

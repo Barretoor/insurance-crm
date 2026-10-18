@@ -13,8 +13,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CRM Seguros de Vida",
-  description: "CRM para agentes de seguros de vida",
+  title: "Andrea Insurance",
+  description: "CRM de Andrea Insurance",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "CRM Seguros",
+    title: "Andrea CRM",
   },
 };
 

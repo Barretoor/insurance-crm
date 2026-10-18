@@ -40,7 +40,7 @@ export function MessagesShell({
   const now = new Date();
 
   return (
-    <div className="flex h-[calc(100dvh-6rem)] overflow-hidden rounded-xl border border-gray-200 bg-surface md:h-[calc(100dvh-5rem)]">
+    <div className="flex h-[calc(100dvh-10rem-env(safe-area-inset-bottom))] overflow-hidden rounded-xl border border-gray-200 bg-surface md:h-[calc(100dvh-5rem)]">
       <AutoRefresh />
 
       <aside

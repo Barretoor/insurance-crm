@@ -1,7 +1,7 @@
 {
-  "name": "CRM Seguros de Vida",
-  "short_name": "CRM Seguros",
-  "description": "CRM para agentes de seguros de vida",
+  "name": "Andrea Insurance",
+  "short_name": "Andrea CRM",
+  "description": "CRM de Andrea Insurance",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

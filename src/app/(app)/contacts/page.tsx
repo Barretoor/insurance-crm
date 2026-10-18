@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { US_STATES } from "@/lib/us-states";
 import { EmptyState } from "@/components/empty-state";
+import { ContactRow } from "@/components/contact-row";
 
 export default async function ContactsPage({
   searchParams,
@@ -36,9 +37,13 @@ export default async function ContactsPage({
       email: true,
       city: true,
       state: true,
+      stage: { select: { name: true, color: true } },
+      messages: { orderBy: { createdAt: "desc" }, take: 1, select: { createdAt: true } },
+      calls: { orderBy: { startedAt: "desc" }, take: 1, select: { startedAt: true } },
       _count: { select: { policies: true } },
     },
   });
+  const now = new Date();
 
   const usedStates = await prisma.contact.findMany({
     where: { agencyId, state: { not: null } },
@@ -53,7 +58,12 @@ export default async function ContactsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-medium text-gray-900 tracking-tight">Contactos</h1>
+        <div>
+          <h1 className="text-2xl font-medium text-gray-900 tracking-tight">Contactos</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            {contacts.length} {contacts.length === 1 ? "contacto" : "contactos"}
+          </p>
+        </div>
         <Link
           href="/contacts/new"
           className="rounded-md bg-accent-600 transition-colors px-4 py-2 text-sm font-medium text-white hover:bg-accent-700"
@@ -131,55 +141,27 @@ export default async function ContactsPage({
           />
         )
       ) : (
-        <div className="overflow-x-auto rounded-md border border-gray-200">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">
-                  Nombre
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">
-                  Teléfono
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">
-                  Correo
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">
-                  Ciudad / Estado
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">
-                  Pólizas
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-surface">
-              {contacts.map((contact) => (
-                <tr key={contact.id} className="transition-colors hover:bg-gray-50">
-                  <td className="px-4 py-2">
-                    <Link
-                      href={`/contacts/${contact.id}`}
-                      className="font-medium text-gray-900 hover:underline"
-                    >
-                      {contact.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-2 text-gray-600">
-                    {contact.phone ?? "—"}
-                  </td>
-                  <td className="px-4 py-2 text-gray-600">
-                    {contact.email ?? "—"}
-                  </td>
-                  <td className="px-4 py-2 text-gray-600">
-                    {[contact.city, contact.state].filter(Boolean).join(", ") ||
-                      "—"}
-                  </td>
-                  <td className="px-4 py-2 text-gray-600">
-                    {contact._count.policies}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200 bg-surface">
+          {contacts.map((contact) => (
+            <ContactRow
+              key={contact.id}
+              now={now}
+              contact={{
+                id: contact.id,
+                name: contact.name,
+                phone: contact.phone,
+                email: contact.email,
+                city: contact.city,
+                state: contact.state,
+                stage: contact.stage,
+                policyCount: contact._count.policies,
+                lastActivity:
+                  [contact.messages[0]?.createdAt, contact.calls[0]?.startedAt]
+                    .filter((d): d is Date => Boolean(d))
+                    .sort((a, b) => b.getTime() - a.getTime())[0] ?? null,
+              }}
+            />
+          ))}
         </div>
       )}
     </div>

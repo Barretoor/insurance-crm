@@ -14,13 +14,13 @@ export function resendClient() {
 }
 
 export const EMAIL_FROM =
-  process.env.EMAIL_FROM || "CRM Seguros de Vida <onboarding@resend.dev>";
+  process.env.EMAIL_FROM || "Andrea Insurance <onboarding@resend.dev>";
 
 export async function sendPasswordResetEmail(to: string, resetUrl: string) {
   await resendClient().emails.send({
     from: EMAIL_FROM,
     to,
-    subject: "Restablece tu contraseña - CRM Seguros de Vida",
+    subject: "Restablece tu contraseña - Andrea Insurance",
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #2b2a28;">
         <h2 style="font-weight: 500;">Restablece tu contraseña</h2>
@@ -42,7 +42,7 @@ export async function sendTeamInviteEmail(to: string, name: string, inviteUrl: s
   await resendClient().emails.send({
     from: EMAIL_FROM,
     to,
-    subject: "Te agregaron al CRM Seguros de Vida",
+    subject: "Te agregaron a Andrea Insurance",
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #2b2a28;">
         <h2 style="font-weight: 500;">¡Bienvenido/a, ${name}!</h2>

@@ -6,11 +6,11 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
   Calendar,
+  Ellipsis,
   Kanban,
   LayoutDashboard,
   ListChecks,
   LogOut,
-  Menu,
   MessageSquare,
   Phone,
   PhoneMissed,
@@ -21,6 +21,15 @@ import {
   Zap,
 } from "lucide-react";
 import { UserAvatar } from "@/components/user-avatar";
+import { BrandLogo } from "@/components/brand";
+
+// Bottom tab bar on phones; everything else lives behind "Más" (the drawer).
+const tabs = [
+  { href: "/mensajes", label: "Mensajes", icon: MessageSquare },
+  { href: "/contacts", label: "Contactos", icon: Users },
+  { href: "/pipeline", label: "Pipeline", icon: Kanban },
+  { href: "/tareas", label: "Tareas", icon: ListChecks },
+];
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -59,21 +68,8 @@ export function NavBar({
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-gray-200 bg-surface px-4 py-3 md:hidden">
-        <span className="text-sm font-medium text-gray-900">
-          CRM Seguros de Vida
-        </span>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Abrir menú"
-          className="relative rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-        >
-          <Menu className="h-5 w-5" strokeWidth={1.75} />
-          {unreadMessages > 0 && (
-            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-accent-600" />
-          )}
-        </button>
+      <div className="flex items-center border-b border-gray-200 bg-surface px-4 py-2.5 md:hidden">
+        <BrandLogo href="/dashboard" />
       </div>
 
       {open && (
@@ -90,9 +86,7 @@ export function NavBar({
         }`}
       >
         <div className="flex items-center justify-between px-5 py-5">
-          <span className="text-sm font-medium text-gray-900">
-            CRM Seguros de Vida
-          </span>
+          <BrandLogo href="/dashboard" />
           <button
             type="button"
             onClick={() => setOpen(false)}
@@ -156,6 +150,43 @@ export function NavBar({
           </button>
         </div>
       </aside>
+
+      <nav
+        aria-label="Navegación principal"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-gray-200 bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+      >
+        {tabs.map((tab) => {
+          const isActive = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+          const Icon = tab.icon;
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              className={`relative flex flex-col items-center gap-0.5 py-2 text-[11px] ${
+                isActive ? "font-medium text-accent-600" : "text-gray-500"
+              }`}
+            >
+              <span className="relative">
+                <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2 : 1.75} />
+                {tab.href === "/mensajes" && unreadMessages > 0 && (
+                  <span className="absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#dc2626] px-1 text-[10px] font-medium text-white">
+                    {unreadMessages > 99 ? "99+" : unreadMessages}
+                  </span>
+                )}
+              </span>
+              {tab.label}
+            </Link>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex flex-col items-center gap-0.5 py-2 text-[11px] text-gray-500"
+        >
+          <Ellipsis className="h-[22px] w-[22px]" strokeWidth={1.75} />
+          Más
+        </button>
+      </nav>
     </>
   );
 }
