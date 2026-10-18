@@ -34,7 +34,8 @@ import { TaskItem } from "@/components/task-item";
 import { AppointmentForm } from "@/components/appointment-form";
 import { ChatThread } from "@/components/chat-thread";
 import { AutoRefresh } from "@/components/auto-refresh";
-import { toggleSmsOptOut } from "../actions";
+import { deleteContact, toggleSmsOptOut } from "../actions";
+import { DeleteContactButton } from "@/components/delete-contact-button";
 
 export default async function ContactDetailPage({
   params,
@@ -96,6 +97,12 @@ export default async function ContactDetailPage({
           >
             Editar contacto
           </Link>
+          <DeleteContactButton
+            contactId={contact.id}
+            contactName={contact.name}
+            optedOut={contact.smsOptOut}
+            action={deleteContact}
+          />
         </div>
       </div>
 

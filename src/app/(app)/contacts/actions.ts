@@ -103,3 +103,32 @@ export async function toggleSmsOptOut(formData: FormData) {
 
   revalidatePath(`/contacts/${contactId}`);
 }
+
+/**
+ * Permanently deletes a contact. Policies, tasks and appointments cascade, but
+ * calls and messages would only be detached (and then pile up as "sin
+ * asociar" / orphaned threads), so they're removed explicitly in the same
+ * transaction.
+ */
+export async function deleteContact(formData: FormData) {
+  const session = await requireSession();
+
+  const contactId = String(formData.get("contactId") ?? "");
+  const contact = await prisma.contact.findFirst({
+    where: { id: contactId, agencyId: session.user.agencyId },
+    select: { id: true },
+  });
+  if (!contact) redirect("/contacts");
+
+  await prisma.$transaction([
+    prisma.message.deleteMany({ where: { contactId: contact.id } }),
+    prisma.call.deleteMany({ where: { contactId: contact.id } }),
+    prisma.contact.delete({ where: { id: contact.id } }),
+  ]);
+
+  revalidatePath("/contacts");
+  revalidatePath("/mensajes");
+  revalidatePath("/pipeline");
+  revalidatePath("/dashboard");
+  redirect("/contacts");
+}
