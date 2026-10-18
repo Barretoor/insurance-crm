@@ -32,7 +32,8 @@ import { RefreshButton } from "@/components/refresh-button";
 import { TaskForm } from "@/components/task-form";
 import { TaskItem } from "@/components/task-item";
 import { AppointmentForm } from "@/components/appointment-form";
-import { MessageThread } from "@/components/message-thread";
+import { ChatThread } from "@/components/chat-thread";
+import { AutoRefresh } from "@/components/auto-refresh";
 import { toggleSmsOptOut } from "../actions";
 
 export default async function ContactDetailPage({
@@ -302,18 +303,21 @@ export default async function ContactDetailPage({
         </div>
 
         {contact.phone ? (
-          <MessageThread
-            contactId={contact.id}
-            optedOut={contact.smsOptOut}
-            initialMessages={contact.messages.map((m) => ({
-              id: m.id,
-              direction: m.direction,
-              body: m.body,
-              status: m.status,
-              createdAt: m.createdAt.toISOString(),
-              automated: m.automationId !== null,
-            }))}
-          />
+          <div className="flex h-[520px] flex-col overflow-hidden rounded-xl border border-gray-200 bg-surface">
+            <AutoRefresh />
+            <ChatThread
+              contactId={contact.id}
+              optedOut={contact.smsOptOut}
+              initialMessages={contact.messages.map((m) => ({
+                id: m.id,
+                direction: m.direction,
+                body: m.body,
+                status: m.status,
+                createdAt: m.createdAt.toISOString(),
+                automated: m.automationId !== null,
+              }))}
+            />
+          </div>
         ) : (
           <EmptyState
             icon={Phone}
