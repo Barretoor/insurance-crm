@@ -164,3 +164,43 @@
   background: var(--color-surface);
   border-bottom-right-radius: 0.65rem;
 }
+
+/*
+ * Touch polish: no grey tap flash and no 300ms double-tap-zoom delay.
+ */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+a,
+button,
+select,
+label,
+[role="tab"] {
+  touch-action: manipulation;
+}
+a:active,
+button:not(:disabled):active {
+  transition-duration: 0ms;
+}
+
+@keyframes skeleton-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+.skeleton {
+  background: var(--color-gray-200);
+  border-radius: 0.5rem;
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

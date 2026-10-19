@@ -95,7 +95,7 @@ export function ChatThread({
     <div className="flex min-h-0 flex-1 flex-col">
       <div
         ref={listRef}
-        className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden px-5 py-4"
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4"
       >
         {messages.length === 0 ? (
           <p className="m-auto text-sm text-gray-400">

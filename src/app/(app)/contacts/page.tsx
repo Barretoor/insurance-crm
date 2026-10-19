@@ -9,16 +9,24 @@ import { ContactRow } from "@/components/contact-row";
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; state?: string }>;
+  searchParams: Promise<{ q?: string; state?: string; stage?: string }>;
 }) {
   const session = await requireSession();
   const agencyId = session.user.agencyId;
-  const { q, state } = await searchParams;
+  const { q, state, stage } = await searchParams;
+
+  const stageFilter = stage
+    ? await prisma.pipelineStage.findFirst({
+        where: { id: stage, agencyId },
+        select: { id: true, name: true },
+      })
+    : null;
 
   const contacts = await prisma.contact.findMany({
     where: {
       agencyId,
       ...(state ? { state } : {}),
+      ...(stageFilter ? { stageId: stageFilter.id } : {}),
       ...(q
         ? {
             OR: [
@@ -62,6 +70,7 @@ export default async function ContactsPage({
           <h1 className="text-2xl font-medium text-gray-900 tracking-tight">Contactos</h1>
           <p className="mt-1 text-sm text-gray-500">
             {contacts.length} {contacts.length === 1 ? "contacto" : "contactos"}
+            {stageFilter && ` · Etapa: ${stageFilter.name}`}
           </p>
         </div>
         <Link
@@ -73,6 +82,7 @@ export default async function ContactsPage({
       </div>
 
       <form className="flex flex-wrap items-end gap-3">
+        {stageFilter && <input type="hidden" name="stage" value={stageFilter.id} />}
         <div className="flex-1 min-w-[200px]">
           <label htmlFor="q" className="block text-sm font-medium text-gray-700">
             Buscar
@@ -115,7 +125,7 @@ export default async function ContactsPage({
         >
           Filtrar
         </button>
-        {(q || state) && (
+        {(q || state || stageFilter) && (
           <Link
             href="/contacts"
             className="text-sm font-medium text-gray-500 underline"
@@ -126,7 +136,7 @@ export default async function ContactsPage({
       </form>
 
       {contacts.length === 0 ? (
-        q || state ? (
+        q || state || stageFilter ? (
           <EmptyState
             icon={Users}
             title="Ningún contacto coincide con tu búsqueda"
